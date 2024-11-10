@@ -1,28 +1,7 @@
-import { MongoClient } from 'mongodb'
+// mongo.ts
+const mongoose = require('mongoose');
+const uri = 'mongodb://root:pwd@mongo:27017/';
 
-if (!process.env.MONGO_URI) {
-  throw new Error('Chybí MONGO_URI v proměnných prostředí')
+export default async function connectToDB() {
+  await mongoose.connect(uri);
 }
-
-const uri = process.env.MONGO_URI
-const options = {}
-
-let client
-let clientPromise: Promise<MongoClient>
-
-if (process.env.NODE_ENV === 'development') {
-  let globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>
-  }
-
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri, options)
-    globalWithMongo._mongoClientPromise = client.connect()
-  }
-  clientPromise = globalWithMongo._mongoClientPromise
-} else {
-  client = new MongoClient(uri, options)
-  clientPromise = client.connect()
-}
-
-export default clientPromise

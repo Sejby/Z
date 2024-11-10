@@ -16,34 +16,19 @@ services:
       - mongo
 
   mongo:
-    image: mongo:latest
-    container_name: mongo
+    image: mongo
+    volumes:
+      - ./scripts/mongo/init/:/docker-entrypoint-initdb.d
+      - ./scripts/mongo/init:/home/mongodb
+      - ./scripts/mongo/seed/:/home/mongodb/seed
+      - mongodata:/data/db
+    restart: unless-stopped
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pwd
-      volumes: /data/db
-    ports:
-      - 27017:27017
-    healthcheck:
-      test: ["CMD", "mongo", "--username", "root", "--password", "pwd", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  
-  mongo-express:
-    image: mongo-express
-    container_name: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    depends_on:
-      - mongo
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: pwd
 
 volumes:
-  mongo_data:
+  mongodata:  
+  

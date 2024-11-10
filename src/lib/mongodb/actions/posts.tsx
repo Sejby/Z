@@ -1,20 +1,21 @@
 import { Post } from "../models/post";
-import clientPromise from "../mongo";
+import connectToDB from "../mongo";
 
 export async function getPosts() {
   try {
-    await clientPromise;
-    const posts = await Post.find();
+    // Zkontroluj připojení k databázi
+    const client = await connectToDB();
+
+    // Pokud je připojení aktivní, provedeme dotaz
+    const posts = await Post.find({});
     return { posts };
   } catch (error) {
-    return { error: "Failed to fetch posts" + error };
+    console.error("Error fetching posts:", error);
+    return { error: "Failed to fetch posts" };
   }
 }
 
-export async function createPost(postData: {
-  title: string;
-  text: string;
-}) {
+export async function createPost(postData: { title: string; text: string }) {
   try {
     const post = await Post.create(postData);
     return { post };
