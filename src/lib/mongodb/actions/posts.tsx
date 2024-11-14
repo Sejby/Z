@@ -4,7 +4,6 @@ import connectToDB from "../mongo";
 export async function getPosts() {
   try {
     // Zkontroluj připojení k databázi
-    const client = await connectToDB();
 
     // Pokud je připojení aktivní, provedeme dotaz
     const posts = await Post.find({});

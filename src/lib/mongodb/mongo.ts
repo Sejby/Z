@@ -1,7 +1,12 @@
-// mongo.ts
-const mongoose = require('mongoose');
-const uri = 'mongodb://root:pwd@mongo:27017/';
+import mongoose from "mongoose";
 
-export default async function connectToDB() {
-  await mongoose.connect(uri);
+const uri = "mongodb://root:pwd@mongo:27017/";
+
+let instance: mongoose.Mongoose | null = null;
+
+export default async function connectToDB(): Promise<mongoose.Mongoose> {
+  if (!instance) {
+    instance = await mongoose.connect(uri);
+  }
+  return instance;
 }

@@ -1,20 +1,4 @@
 services:
-  app:
-    image: nosqlproject
-    build:
-      context: ./
-      target: dev
-      dockerfile: Dockerfile
-    volumes:
-        - ./:/app
-        - /app/node_modules
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env.local
-    depends_on:
-      - mongo
-
   mongo:
     image: mongo
     volumes:
@@ -24,11 +8,10 @@ services:
       - mongodata:/data/db
     restart: unless-stopped
     ports:
-      - 27017:27017
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pwd
 
 volumes:
-  mongodata:  
-  
+  mongodata:
