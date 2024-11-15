@@ -4,8 +4,13 @@ import RegisterLink from "@/components/common/register-link";
 export default async function Home() {
   return (
     <div>
-      <LoginLink />
-      <RegisterLink />
+      <h2 className="text-center text-2xl pt-10">
+        Pro pokračování se musíte přihlásit/zaregistrovat
+      </h2>
+      <div className="mx-auto max-w-[250px] pt-6 flex flex-col space-y-2">
+        <LoginLink />
+        <RegisterLink />
+      </div>
     </div>
   );
 }
