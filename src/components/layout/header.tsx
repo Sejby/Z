@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,10 +13,15 @@ const navLinks = [
     href: "/posts",
     title: "Posts",
   },
+  {
+    href: "/dashboard",
+    title: "Dashboard",
+  },
 ];
 
 export default function Header() {
   const pathname = usePathname();
+  const session = useSession();
 
   return (
     <header className="flex justify-between items-center py-4 px-7 border-b">
@@ -40,6 +46,13 @@ export default function Header() {
           ))}
         </ul>
       </nav>
+      <span>
+        {session.data ? (
+          <button onClick={() => signOut()}>Sign out</button>
+        ) : (
+          <Link href={"/login"}>Sign in</Link>
+        )}
+      </span>
     </header>
   );
 }

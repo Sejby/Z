@@ -1,4 +1,4 @@
-import { Post } from "../models/post";
+/* import { Post } from "../models/post";
 import connectToDB from "../mongo";
 
 export async function getPosts() {
@@ -22,3 +22,4 @@ export async function createPost(postData: { title: string; text: string }) {
     return { error: "Failed to create user" };
   }
 }
+ */
