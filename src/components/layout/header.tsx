@@ -4,15 +4,14 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navLinks = [
+const publicNavLinks = [
   {
     href: "/",
     title: "Home",
   },
-  {
-    href: "/posts",
-    title: "Posts",
-  },
+];
+
+const privateNavLinks = [
   {
     href: "/dashboard",
     title: "Dashboard",
@@ -21,16 +20,19 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
-  const session = useSession();
+  const { data: session, status } = useSession();
+
+  // Vybere správné odkazy podle stavu přihlášení
+  const currentNavLinks = session ? privateNavLinks : publicNavLinks;
 
   return (
     <header className="flex justify-between items-center py-4 px-7 border-b">
-      <Link href={"/"}>
+      <Link href={session ? "/dashboard" : "/"}>
         <h1 className="p-2 font-bold text-xl">Servario</h1>
       </Link>
       <nav>
         <ul className="flex gap-x-5 text-[14px]">
-          {navLinks.map((link) => (
+          {currentNavLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
@@ -47,10 +49,20 @@ export default function Header() {
         </ul>
       </nav>
       <span>
-        {session.data ? (
-          <button onClick={() => signOut()}>Sign out</button>
+        {session ? (
+          <button 
+            onClick={() => signOut()}
+            className="hover:text-gray-700 transition-colors"
+          >
+            Sign out
+          </button>
         ) : (
-          <Link href={"/login"}>Sign in</Link>
+          <Link 
+            href={"/login"}
+            className="hover:text-gray-700 transition-colors"
+          >
+            Sign in
+          </Link>
         )}
       </span>
     </header>

@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import connectToDB from "@/lib/mongodb/mongo";
 import { User } from "@/lib/mongodb/models/post";
+import { revalidatePath } from "next/cache";
 
 export const authOptions = {
   providers: [
@@ -27,6 +28,8 @@ export const authOptions = {
             return null;
           }
 
+          revalidatePath("/dashboard");
+          
           return user;
         } catch (error) {
           console.log("Error: ", error);
