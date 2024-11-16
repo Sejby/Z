@@ -1,53 +1,49 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardDescription,
-  CardContent,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-
-import Link from "next/link";
-
-//react icons
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { TriangleAlert } from "lucide-react";
+import { Router, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const SignIn = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [pending, setPending] = useState(false);
-  const router = useRouter();
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
+    setError(""); // Reset error message before new attempt
 
-    // Přihlaš se pomocí `next-auth`
-    const res = await signIn("credentials", {
-      redirect: true,
-      email,
-      password,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      // Try signing in using credentials provider
+      const res = await signIn("credentials", {
+        redirect: false, // don't redirect automatically, we want to handle it
+        email,
+        password,
+        callbackUrl: "/dashboard",
+      });
 
-    if (res?.ok) {
-      toast.success("Login successful");
-    } else if (res?.status === 401) {
-      setError("Invalid Credentials");
-      setPending(false);
-    } else {
-      setError("Something went wrong");
-      setPending(false);
+      // If sign in is successful
+      if (res?.ok) {
+        toast.success("Přihlášení úspěšné!");
+        router.push("/dashboard");
+        router.refresh();
+        
+      } else if (res?.error) {
+        setError(res.error); // Display the error message returned from next-auth
+      }
+    } catch (error: unknown) {
+      console.error(error);
+      setError("Nastala chyba při přihlašování. Zkuste to prosím znovu.");
+    } finally {
+      setPending(false); // Reset pending state after the operation completes
     }
   };
 
@@ -58,81 +54,77 @@ const SignIn = () => {
     event.preventDefault();
     signIn(value, { callbackUrl: "/" });
   };
+
   return (
-    <div className="h-full flex items-center justify-center bg-[#1b0918]">
-      <Card className="md:h-auto w-[80%] sm:w-[420px] p-4 sm:p-8">
-        <CardHeader>
-          <CardTitle className="text-center">Sign in</CardTitle>
-          <CardDescription className="text-sm text-center text-accent-foreground">
-            Use email or service, to sign in
-          </CardDescription>
-        </CardHeader>
-        {!!error && (
-          <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
-            <TriangleAlert />
-            <p>{error}</p>
-          </div>
-        )}
-        <CardContent className="px-2 sm:px-6">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <Input
-              type="email"
-              disabled={pending}
-              placeholder="email"
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-              required
-            />
-            <Input
-              type="password"
-              disabled={pending}
-              placeholder="password"
-              value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-              required
-            />
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 p-5 pt-10 w-96 mx-auto bg-white rounded shadow-lg"
+    >
+      <h2 className="text-xl font-bold mb-4 text-center">Přihlášení</h2>
+      <p className="text-center text-gray-500 mb-6">
+        Přihlášení přes e-mail a heslo
+      </p>
 
-            <Button className="w-full" size="lg" disabled={pending}>
-              continue
-            </Button>
-          </form>
+      {/* Error message display */}
+      {!!error && (
+        <div className="bg-red-100 text-red-600 p-3 rounded-md flex items-center gap-2 text-sm mb-6 animate-pulse">
+          <TriangleAlert className="w-5 h-5" />
+          <p>{error}</p>
+        </div>
+      )}
 
-          <div className="flex my-2 justify-evenly mx-auto items-center">
-            <Button
-              disabled={false}
-              onClick={() => {}}
-              variant="outline"
-              size="lg"
-              className="bg-slate-300 hover:bg-slate-400 hover:scale-110"
-            >
-              <FcGoogle className="size-8 left-2.5 top-2.5" />
-            </Button>
-            <Button
-              disabled={false}
-              onClick={(e) => handleProvider(e, "github")}
-              variant="outline"
-              size="lg"
-              className="bg-slate-300 hover:bg-slate-400 hover:scale-110"
-            >
-              <FaGithub className="size-8 left-2.5 top-2.5" />
-            </Button>
-          </div>
-          <p className="text-center text-sm mt-2 text-muted-foreground">
-            Create new account
-            <Link
-              className="text-sky-700 ml-4 hover:underline cursor-pointer"
-              href="sign-up"
-            >
-              Sing up{" "}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <div>
+        <label htmlFor="email" className="block font-medium mb-1">
+          Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          disabled={pending}
+          placeholder="pepa@email.cz"
+          value={email}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
+          className="p-2 border rounded w-full"
+          required
+        />
+      </div>
+
+      <div>
+        <label htmlFor="password" className="block font-medium mb-1">
+          Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          disabled={pending}
+          placeholder="*****"
+          value={password}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
+          className="p-2 border rounded w-full"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="relative inline-block p-3 px-6 py-3 bg-gray-700 text-white rounded-md font-semibold transition-transform duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-102 hover:bg-gray-500 shadow-lg hover:shadow-xl w-full mt-4"
+        disabled={pending}
+      >
+        Přihlásit
+        <span className="absolute inset-0 w-full h-full rounded-md bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-30"></span>
+      </button>
+
+      <p className="text-center text-sm text-gray-500">
+        Ještě nemáš účet?
+        <Link href="/sign-up" className="text-blue-600 ml-2 hover:underline">
+          Registruj se
+        </Link>
+      </p>
+    </form>
   );
 };
 
