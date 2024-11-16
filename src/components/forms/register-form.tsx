@@ -1,18 +1,18 @@
 "use client";
 
-import { register } from "@/actions/register";
-import Link from "next/link";
+import { register, RegisterState } from "@/actions/register";
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+//import { useFormStatus } from "react-dom";
 import LoginLink from "../common/login-link";
 
-const initialState = {
-  message: null,
+const initialState: RegisterState = {
+  status: 0,
+  message: "",
 };
 
 export default function RegisterForm() {
   const [state, formAction] = useActionState(register, initialState);
-  const { pending } = useFormStatus();
+  //const { pending } = useFormStatus();
 
   return (
     <form
@@ -76,7 +76,9 @@ export default function RegisterForm() {
         {state?.message}
       </p>
 
-      <div className="w-full mx-auto">{state?.status === 200 && <LoginLink />}</div>
+      <div className="w-full mx-auto">
+        {state?.status === 200 && <LoginLink />}
+      </div>
     </form>
   );
 }

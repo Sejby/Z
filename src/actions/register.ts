@@ -3,10 +3,15 @@
 import { User } from "@/lib/mongodb/models/post";
 import connectToDB from "@/lib/mongodb/mongo";
 
+export type RegisterState = {
+  status: number;
+  message: string;
+};
+
 export async function register(
-  prevState: any,
+  prevState: RegisterState,
   formData: FormData
-): Promise<any> {
+): Promise<RegisterState> {
   try {
     await connectToDB();
 
@@ -22,8 +27,14 @@ export async function register(
 
     await newUser.save();
 
-    return { status: 200, message: "Úspěšně jste se zaregistrovali" };
-  } catch (error: any) {
-    return { status: 500, message: error.message };
+    return {
+      status: 200,
+      message: "Úspěšně jste se zaregistrovali",
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { status: 500, message: error.message };
+    }
+    return { status: 500, message: "Došlo k neznámé chybě" };
   }
 }

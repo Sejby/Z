@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
+interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
+
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -21,16 +29,16 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-UserSchema.pre("save", async function (next) {
-  const user = this;
+const hashPassword = async (password: string): Promise<string> => {
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
+};
 
-  if (user.isModified("password")) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(user.password, salt);
-    user.password = hashedPassword;
+UserSchema.pre("save", async function(next) {
+  if (this.isModified("password")) {
+    this.password = await hashPassword(this.password);
   }
-
   next();
 });
 
-export const User = mongoose.models.User || mongoose.model("User", UserSchema);
+export const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
